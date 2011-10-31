@@ -9,25 +9,17 @@
 <div>
 <div>
 <p>Vyatta側でIPSecを利用するネットワークインターフェイス（例 eth0）</p>
-<p><input id="interface" value="eth0"></input></p>
+<p><input id="interface"></input></p>
 </div>
 <div>
-Vyatta側のネットワーク情報（例 192.168.1.0/24）：　<input id="local_subnet" value="192.168.1.0/24"></input>
+Vyatta側のネットワーク情報（例 192.168.1.0/24）：　<input id="local_subnet"></input>
 </div>
 <div>
-Amazon VPC側のネットワーク情報（例 10.0.0.0/16）：　<input id="remote_subnet" value="10.0.0.0/16"></input>
+Amazon VPC側のネットワーク情報（例 10.0.0.0/16）：　<input id="remote_subnet"></input>
 </div>
 <div>
 Amazon VPCからダウンロードした設定情報： 
 <textarea id="config" cols="80" rows="15">
-XXXX
-  - ZZZ  : AAAA
-
-YYYY
-  - ZZZ  : CCCC
-
-XXXX
-  - ZZZ  : BBBB
 </textarea>
 </div>
 <div><button id="generate">作成</button></div>
