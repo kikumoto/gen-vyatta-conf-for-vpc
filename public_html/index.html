@@ -6,33 +6,45 @@
 <script type="text/javascript" src="js/generator.js"></script>
 </head>
 <body>
-<div>
-<div>
-<p>Vyatta側でIPSecを利用するネットワークインターフェイス（例 eth0）</p>
-<p><input id="interface"></input></p>
-</div>
-<div>
-Vyatta側のネットワーク情報（例 192.168.1.0/24）：　<input id="local_subnet"></input>
-</div>
-<div>
-Amazon VPC側のネットワーク情報（例 10.0.0.0/16）：　<input id="remote_subnet"></input>
-</div>
-<div>
-Amazon VPCからダウンロードした設定情報： 
-<textarea id="config" cols="80" rows="15">
-</textarea>
-</div>
+<h1>Vyatta Configuration Generator for Amazon VPC</h1>
+<fieldset>
+<legend>入力</legend>
+<dl>
+	<dt>VyattaでIPSecを利用するネットワークインターフェイス（例 eth0）</dt>
+	<dd><input id="interface" size="30" /></dd>
+	
+	<dt>ローカルネットワーク情報（例 192.168.1.0/24）</dt>
+	<dd><input id="local_subnet" size="30" /></dd>
+	
+	<dt>Amazon VPC のネットワーク情報（例 10.0.0.0/16）</dt>
+	<dd><input id="remote_subnet" size="35" /></dd>
+	
+	<dt>Amazon VPCからダウンロードした設定情報</dt>
+	<dd><textarea id="config" cols="120" rows="15"></textarea></dd>
+</dl>
+</fieldset>
+
+<br/>
 <div><button id="generate">作成</button></div>
-<div>
-<textarea id="config_result" readonly cols="80" rows="25">
-</textarea>
-</div>
-<div>
-<textarea id="setupscript_result" readonly cols="80" rows="25">
-</textarea>
-</div>
-</div>
-<div>
+<br/>
+
+<fieldset>
+<legend>生成結果</legend>
+<dl>
+  <dt>Vyatta設定</dt>
+  <dd>
+    <textarea id="config_result" readonly cols="120" rows="25">
+    </textarea>
+  </dd>
+
+  <dt>Vyattaパケット転送スクリプト</dt>
+  <dd>
+    <textarea id="setupscript_result" readonly cols="120" rows="25">
+    </textarea>
+  </dd>
+</dl>
+</fieldset>
+
 <pre id="vyatta_config_template" style="display: none">
 interfaces {
     loopback lo {
@@ -145,8 +157,6 @@ vpn {
     }
 }
 </pre>
-</div>
-<div>
 <pre id="vyatta_setupscript_template" style="display: none">
 #!/bin/sh
 BGP_LOCAL_IP_SUBNET1=TUNNEL1_INSIDE_CGW_IP/TUNNEL1_INSIDE_CGW_NETMASK
@@ -170,6 +180,8 @@ ip xfrm policy update dir fwd src $VPC_CIDR dst $MY_LOCALSUBNET_IP tmpl src $VPN
 ip xfrm policy update dir in src $VPC_CIDR dst $MY_LOCALSUBNET_IP tmpl src $VPN_2_IP dst $MY_WAN_IP proto esp level required mode tunnel 
 
 </pre>
-</div>
+
+<hr/>
+2011.11.01
 </body>
 </html>
