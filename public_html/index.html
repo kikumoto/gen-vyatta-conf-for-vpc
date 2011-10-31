@@ -1,0 +1,183 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<title>Vyatta Configuration Generator for Amazon VPC</title>
+<script type="text/javascript" src="js/jquery-1.6.4.min.js"></script>
+<script type="text/javascript" src="js/generator.js"></script>
+</head>
+<body>
+<div>
+<div>
+<p>Vyatta側でIPSecを利用するネットワークインターフェイス（例 eth0）</p>
+<p><input id="interface" value="eth0"></input></p>
+</div>
+<div>
+Vyatta側のネットワーク情報（例 192.168.1.0/24）：　<input id="local_subnet" value="192.168.1.0/24"></input>
+</div>
+<div>
+Amazon VPC側のネットワーク情報（例 10.0.0.0/16）：　<input id="remote_subnet" value="10.0.0.0/16"></input>
+</div>
+<div>
+Amazon VPCからダウンロードした設定情報： 
+<textarea id="config" cols="80" rows="15">
+XXXX
+  - ZZZ  : AAAA
+
+YYYY
+  - ZZZ  : CCCC
+
+XXXX
+  - ZZZ  : BBBB
+</textarea>
+</div>
+<div><button id="generate">作成</button></div>
+<div>
+<textarea id="config_result" readonly cols="80" rows="25">
+</textarea>
+</div>
+<div>
+<textarea id="setupscript_result" readonly cols="80" rows="25">
+</textarea>
+</div>
+</div>
+<div>
+<pre id="vyatta_config_template" style="display: none">
+interfaces {
+    loopback lo {
+        address TUNNEL1_INSIDE_CGW_IP/32
+        address TUNNEL2_INSIDE_CGW_IP/32
+    }
+}
+protocols {
+    bgp TUNNEL1_BGP_CONFIG_CGW_ASN {
+        neighbor TUNNEL1_BGP_CONFIG_NEIGHBOR {
+            remote-as TUNNEL1_BGP_CONFIG_VPGW_ASN
+            update-source TUNNEL1_INSIDE_CGW_IP
+        }
+        neighbor TUNNEL2_BGP_CONFIG_NEIGHBOR {
+            remote-as TUNNEL2_BGP_CONFIG_VPGW_ASN
+            update-source TUNNEL2_INSIDE_CGW_IP
+        }
+        network 0.0.0.0/0
+    }
+}
+vpn {
+    ipsec {
+        disable-uniqreqids {
+        }
+        ipsec-interfaces {
+            interface VYATTA_IPSEC_INTERFACE
+        }
+        esp-group ESP1 {
+            compression disable
+            lifetime 3600
+            mode tunnel
+            pfs enable
+            proposal 1 {
+                encryption aes128
+                hash sha1
+            }
+        }
+        ike-group IKE1 {
+            lifetime 28800
+            proposal 1 {
+                dh-group 2
+                encryption aes128
+                hash sha1
+            }
+        }
+        esp-group ESP2 {
+            compression disable
+            lifetime 3600
+            mode tunnel
+            pfs enable
+            proposal 1 {
+                encryption aes128
+                hash sha1
+            }
+        }
+        ike-group IKE2 {
+            lifetime 28800
+            proposal 1 {
+                dh-group 2
+                encryption aes128
+                hash sha1
+            }
+        }
+        site-to-site {
+            peer TUNNEL1_OUTSIDE_VPGW_IP {
+                authentication {
+                    mode pre-shared-secret
+                    pre-shared-secret TUNNEL1_PSK
+                }
+                ike-group IKE1
+                local-ip TUNNEL1_OUTSIDE_CGW_IP
+                tunnel 1 {
+                    allow-nat-networks disable
+                    allow-public-networks disable
+                    esp-group ESP1
+                    local-subnet TUNNEL1_INSIDE_CGW_IP/32
+                    remote-subnet TUNNEL1_INSIDE_VPGW_IP/TUNNEL1_INSIDE_VPGW_NETMASK
+                }
+                tunnel 2 {
+                    allow-nat-networks disable
+                    allow-public-networks disable
+                    esp-group ESP1
+                    local-subnet LOCAL_SUBNET
+                    remote-subnet VPC_REMOTE_SUBNET
+                }
+            }
+            peer TUNNEL2_OUTSIDE_VPGW_IP {
+                authentication {
+                    mode pre-shared-secret
+                    pre-shared-secret TUNNEL2_PSK
+                }
+                ike-group IKE1
+                local-ip TUNNEL2_OUTSIDE_CGW_IP
+                tunnel 1 {
+                    allow-nat-networks disable
+                    allow-public-networks disable
+                    esp-group ESP1
+                    local-subnet TUNNEL2_INSIDE_CGW_IP/32
+                    remote-subnet TUNNEL2_INSIDE_VPGW_IP/TUNNEL1_INSIDE_VPGW_NETMASK
+                }
+                tunnel 2 {
+                    allow-nat-networks disable
+                    allow-public-networks disable
+                    esp-group ESP1
+                    local-subnet LOCAL_SUBNET
+                    remote-subnet VPC_REMOTE_SUBNET
+                }
+            }
+        }
+    }
+}
+</pre>
+</div>
+<div>
+<pre id="vyatta_setupscript_template" style="display: none">
+#!/bin/sh
+BGP_LOCAL_IP_SUBNET1=TUNNEL1_INSIDE_CGW_IP/TUNNEL1_INSIDE_CGW_NETMASK
+BGP_LOCAL_IP_SUBNET2=TUNNEL2_INSIDE_CGW_IP/TUNNEL2_INSIDE_CGW_NETMASK
+BGP_LOCAL_IP_1=TUNNEL1_INSIDE_CGW_IP
+BGP_LOCAL_IP_2=TUNNEL2_INSIDE_CGW_IP
+VPN_1_IP=TUNNEL1_OUTSIDE_VPGW_IP
+VPN_2_IP=TUNNEL2_OUTSIDE_VPGW_IP
+MY_WAN_IP=TUNNEL1_OUTSIDE_CGW_IP
+MY_LOCALSUBNET_IP=LOCAL_SUBNET
+VPC_CIDR=VPC_REMOTE_SUBNET
+
+ip xfrm policy update dir fwd src $BGP_LOCAL_IP_SUBNET1 dst $BGP_LOCAL_IP_1/32 tmpl src $VPN_1_IP dst $MY_WAN_IP proto esp level required mode tunnel
+ip xfrm policy update dir in src $BGP_LOCAL_IP_SUBNET1 dst $BGP_LOCAL_IP_1/32 tmpl src $VPN_1_IP dst $MY_WAN_IP proto esp level required mode tunnel
+ip xfrm policy update dir fwd src $VPC_CIDR dst $MY_LOCALSUBNET_IP tmpl src $VPN_1_IP dst $MY_WAN_IP proto esp level required mode tunnel
+ip xfrm policy update dir in src $VPC_CIDR dst $MY_LOCALSUBNET_IP tmpl src $VPN_1_IP dst $MY_WAN_IP proto esp level required mode tunnel 
+
+ip xfrm policy update dir fwd src $BGP_LOCAL_IP_SUBNET2 dst $BGP_LOCAL_IP_2/32 tmpl src $VPN_2_IP dst $MY_WAN_IP proto esp level required mode tunnel
+ip xfrm policy update dir in src $BGP_LOCAL_IP_SUBNET2 dst $BGP_LOCAL_IP_2/32 tmpl src $VPN_2_IP dst $MY_WAN_IP proto esp level required mode tunnel
+ip xfrm policy update dir fwd src $VPC_CIDR dst $MY_LOCALSUBNET_IP tmpl src $VPN_2_IP dst $MY_WAN_IP proto esp level required mode tunnel
+ip xfrm policy update dir in src $VPC_CIDR dst $MY_LOCALSUBNET_IP tmpl src $VPN_2_IP dst $MY_WAN_IP proto esp level required mode tunnel 
+
+</pre>
+</div>
+</body>
+</html>
