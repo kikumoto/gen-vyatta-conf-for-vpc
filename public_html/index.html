@@ -7,7 +7,7 @@
 <link href="css/generator.css" media="screen" rel="stylesheet" type="text/css" />
 </head>
 <body>
-<h1>Vyatta Configuration Generator for Amazon VPC</h1>
+<h1>Vyatta(=>6.3) Configuration Generator for Amazon VPC</h1>
 <fieldset>
 <legend>入力</legend>
 <dl>
@@ -128,8 +128,12 @@ vpn {
                     allow-nat-networks disable
                     allow-public-networks disable
                     esp-group ESP1
-                    local-subnet LOCAL_SUBNET
-                    remote-subnet VPC_REMOTE_SUBNET
+                    local {
+                      subnet LOCAL_SUBNET
+                    }
+                    remote {
+                      subnet VPC_REMOTE_SUBNET
+                    }
                 }
             }
             peer TUNNEL2_OUTSIDE_VPGW_IP {
@@ -150,8 +154,12 @@ vpn {
                     allow-nat-networks disable
                     allow-public-networks disable
                     esp-group ESP1
-                    local-subnet LOCAL_SUBNET
-                    remote-subnet VPC_REMOTE_SUBNET
+                    local {
+                      subnet LOCAL_SUBNET
+                    }
+                    remote {
+                      subnet VPC_REMOTE_SUBNET
+                    }
                 }
             }
         }
