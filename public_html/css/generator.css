@@ -1,0 +1,12 @@
+dt {
+  font-weight: bold;
+  margin: 0 0 5px;
+  padding: 5px 0 5px 5px;
+  border-left: 10px solid #9999ff;
+  background-color: #ccccff;
+}
+
+dd {
+  margin: 0 0 1.5em;
+  padding: 0;
+}
