@@ -121,18 +121,22 @@ vpn {
                     allow-nat-networks disable
                     allow-public-networks disable
                     esp-group ESP1
-                    local-subnet TUNNEL1_INSIDE_CGW_IP/32
-                    remote-subnet TUNNEL1_INSIDE_VPGW_IP/TUNNEL1_INSIDE_VPGW_NETMASK
+                    local {
+                        subnet TUNNEL1_INSIDE_CGW_IP/32
+                    }
+                    remote {
+                        subnet TUNNEL1_INSIDE_VPGW_IP/TUNNEL1_INSIDE_VPGW_NETMASK
+                    }
                 }
                 tunnel 2 {
                     allow-nat-networks disable
                     allow-public-networks disable
                     esp-group ESP1
                     local {
-                      subnet LOCAL_SUBNET
+                        subnet LOCAL_SUBNET
                     }
                     remote {
-                      subnet VPC_REMOTE_SUBNET
+                        subnet VPC_REMOTE_SUBNET
                     }
                 }
             }
@@ -147,8 +151,12 @@ vpn {
                     allow-nat-networks disable
                     allow-public-networks disable
                     esp-group ESP1
-                    local-subnet TUNNEL2_INSIDE_CGW_IP/32
-                    remote-subnet TUNNEL2_INSIDE_VPGW_IP/TUNNEL1_INSIDE_VPGW_NETMASK
+                    local {
+                        subnet TUNNEL2_INSIDE_CGW_IP/32
+                    }
+                    remote {
+                        subnet TUNNEL2_INSIDE_VPGW_IP/TUNNEL1_INSIDE_VPGW_NETMASK
+                    }
                 }
                 tunnel 2 {
                     allow-nat-networks disable
