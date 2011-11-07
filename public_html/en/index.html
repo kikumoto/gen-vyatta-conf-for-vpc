@@ -2,50 +2,66 @@
 <head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
 <title>Vyatta Configuration Generator for Amazon VPC</title>
-<script type="text/javascript" src="js/jquery-1.6.4.min.js"></script>
-<script type="text/javascript" src="js/generator.js"></script>
-<link href="css/generator.css" media="screen" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="../js/jquery-1.6.4.min.js"></script>
+<script type="text/javascript" src="../js/generator.js"></script>
+<link href="../css/generator.css" media="screen" rel="stylesheet" type="text/css" />
 </head>
 <body>
 <h1>Vyatta(=>6.3) Configuration Generator for Amazon VPC</h1>
-<a href="en/index.html">English</a><br/>
-<a href="http://d.hatena.ne.jp/kikumoto/20111103/1320305161" target="_blank">使い方</a>
+<a href="../index.html">Japanese（日本語）</a>
 <fieldset>
-<legend>入力</legend>
+<legend>Input</legend>
 <dl>
-	<dt>VyattaでIPSecを利用するネットワークインターフェイス（例 eth0）</dt>
+	<dt>IPSec Network Interface on Vyatta Node（ex. eth0）</dt>
 	<dd><input id="interface" size="30" /></dd>
 	
-	<dt>ローカルネットワーク情報（例 192.168.1.0/24）</dt>
+	<dt>Your private network（ex. 192.168.1.0/24）</dt>
 	<dd><input id="local_subnet" size="30" /></dd>
 	
-	<dt>Amazon VPC のネットワーク情報（例 10.0.0.0/16）</dt>
+	<dt>Amazon VPC IP CIDR Block（ex. 10.0.0.0/16）</dt>
 	<dd><input id="remote_subnet" size="35" /></dd>
 	
-	<dt>Amazon VPCからダウンロードした設定情報</dt>
+	<dt>Copy and paste the Configuration of Generic Customer Gateway, which was downloaded from Amazon VPC</dt>
 	<dd><textarea id="config" cols="120" rows="15"></textarea></dd>
 </dl>
 </fieldset>
 
 <br/>
-<div><button id="generate">作成</button></div>
+<div><button id="generate">Generate</button></div>
 <br/>
 
 <fieldset>
-<legend>生成結果</legend>
+<legend>Result</legend>
 <dl>
-  <dt>Vyatta設定</dt>
+  <dt>Configuration for Vyatta</dt>
   <dd>
     <textarea id="config_result" readonly cols="120" rows="25">
     </textarea>
+    <p>save to a file (ex. vpc_config.txt) and then merge it like this</p>
+    <textarea id="config_result" readonly cols="120" rows="8">
+$ configure
+# merge /path/to/vpc_config.txt
+Warning: file does NOT appear to be a valid config file.
+Do you want to continue? [no] Y
+# commit
+# save
+# exit
+    </textarea>
   </dd>
 
-  <dt>Vyattaパケット転送スクリプト</dt>
+  <dt>Setup script to foward packets</dt>
   <dd>
     <textarea id="setupscript_result" readonly cols="120" rows="25">
     </textarea>
+    <p>save to a file (ex. vpc_setup.sh) and then run it like this</p>
+    <textarea id="config_result" readonly cols="120" rows="2">
+$ sudo sh /path/to/vpc_setup.sh
+    </textarea>
   </dd>
 </dl>
+<p>
+Now, you can connect to a EC2 instance in VPC from your private network.
+</p>
 </fieldset>
 
 <pre id="vyatta_config_template" style="display: none">
